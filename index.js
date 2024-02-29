@@ -34,7 +34,7 @@ app.get("/qr-code", async (req, res) => {
 
     // Wait for QR code to appear
     // await page.waitForSelector(".W3myC");
-    await new Promise((resolve) => setTimeout(resolve, 45000));
+    await new Promise((resolve) => setTimeout(resolve, 20000));
 
     const qrCodeUrl = await page.evaluate(() => {
       const qrCodeElement = document.querySelector("canvas");
@@ -75,25 +75,29 @@ app.get("/sms", async (req, res) => {
     // const page = await browser.newPage();
     // await page.goto("https://web.whatsapp.com");
 
-    setInterval(async () => {
+  
       await page.click(".iq0m558w");
 
       // Type recipient's name
+
+      
+      
       await page.waitForSelector("._2vDPL");
       await page.type("._2vDPL", to);
       // await page.waitForTimeout(3000); // Add a delay for the search results to appear
-
+      
       //   // Click on the chat
       //   await page.waitForSelector("._8nE1Y");
       //   await page.click("._8nE1Y");
-
+      
       await page.keyboard.press("Enter");
-
-      await page.waitForSelector("._3Uu1_");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      
+      // await page.waitForSelector("._3Uu1_");
       await page.type("._3Uu1_", msg);
 
       await page.keyboard.press("Enter");
-    }, 5000);
+
 
     res.send("Done");
 
