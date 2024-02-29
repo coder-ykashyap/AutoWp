@@ -34,7 +34,9 @@ app.get("/qr-code", async (req, res) => {
     await page.goto("https://web.whatsapp.com");
 
     // Wait for QR code to appear
-    await page.waitForSelector(".W3myC");
+    // await page.waitForSelector(".W3myC");
+    await new Promise((resolve) => setTimeout(resolve,60* 1000));
+
 
     await page.screenshot({ path: "./screenshot.png" });
 
