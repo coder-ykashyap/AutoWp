@@ -23,7 +23,6 @@ let page;
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
-
   });
   page = await browser.newPage();
 })();
@@ -35,16 +34,16 @@ app.get("/qr-code", async (req, res) => {
 
     // Wait for QR code to appear
     // await page.waitForSelector(".W3myC");
-    await new Promise((resolve) => setTimeout(resolve,process.env.samay));
+    await new Promise((resolve) => setTimeout(resolve, 45000));
 
     const qrCodeUrl = await page.evaluate(() => {
       const qrCodeElement = document.querySelector("canvas");
       return qrCodeElement.toDataURL();
     });
 
-    console.log('\n\n',qrCodeUrl,"\n\n");
+    // console.log("\n\n", qrCodeUrl, "\n\n");
 
-    res.send(qrCodeUrl)
+    res.send(qrCodeUrl);
     // await page.screenshot({ path: "./screenshot.png" });
 
     // const filePath = path.join(__dirname, "screenshot.png");
