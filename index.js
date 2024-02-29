@@ -34,7 +34,7 @@ app.get("/qr-code", async (req, res) => {
 
     // Wait for QR code to appear
     // await page.waitForSelector(".W3myC");
-    await new Promise((resolve) => setTimeout(resolve, 30000));
+    await new Promise((resolve) => setTimeout(resolve, 45000));
 
     const qrCodeUrl = await page.evaluate(() => {
       const qrCodeElement = document.querySelector("canvas");
