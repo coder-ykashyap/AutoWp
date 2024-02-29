@@ -24,7 +24,6 @@ let page;
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
 
-    headless: false,
   });
   page = await browser.newPage();
 })();
