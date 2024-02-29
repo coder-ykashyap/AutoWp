@@ -37,22 +37,29 @@ app.get("/qr-code", async (req, res) => {
     // await page.waitForSelector(".W3myC");
     await new Promise((resolve) => setTimeout(resolve,process.env.samay));
 
-
-    await page.screenshot({ path: "./screenshot.png" });
-
-    const filePath = path.join(__dirname, "screenshot.png");
-
-    // Check if the file exists
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(404).send("File not found");
-      }
-
-      // Stream the file to the response
-      const stream = fs.createReadStream(filePath);
-      stream.pipe(res);
+    const qrCodeUrl = await page.evaluate(() => {
+      const qrCodeElement = document.querySelector("canvas");
+      return qrCodeElement.toDataURL();
     });
+
+    console.log('\n\n',qrCodeUrl,"\n\n");
+
+    res.send(qrCodeUrl)
+    // await page.screenshot({ path: "./screenshot.png" });
+
+    // const filePath = path.join(__dirname, "screenshot.png");
+
+    // // Check if the file exists
+    // fs.access(filePath, fs.constants.F_OK, (err) => {
+    //   if (err) {
+    //     console.error(err);
+    //     return res.status(404).send("File not found");
+    //   }
+
+    //   // Stream the file to the response
+    //   const stream = fs.createReadStream(filePath);
+    //   stream.pipe(res);
+    // });
   } catch (error) {
     console.log(error, "some error occurred");
     res.status(500).send("Internal Server Error");
