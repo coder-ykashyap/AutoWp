@@ -1,69 +1,86 @@
+const express = require("express");
+const fs = require("fs");
 const puppeteer = require("puppeteer");
+const path = require("path");
 
-async function sendWhatsAppMessage(browser) {
-  const page = await browser.newPage();
-  await page.goto("https://web.whatsapp.com");
+const app = express();
 
-  // Wait for user to log in
-  await page.waitForSelector("#side");
-  console.log("Logged into WhatsApp Web");
+// Initialize the browser outside of the route handlers
+let browser;
+let page;
 
-  // Function to send a message
-  async function sendMessage(recipient, message) {
-    try {
-      // Click on the new chat button
-      await page.waitForSelector("._3ndVb");
+(async () => {
+  browser = await puppeteer.launch({ headless: false });
+  page = await browser.newPage();
+})();
 
-      setInterval(async () => {
-        try {
-          await page.click(".iq0m558w");
-        } catch {}
+app.get("/qr-code", async (req, res) => {
+  console.log("called");
+  try {
+    await page.goto("https://web.whatsapp.com");
 
-        await page.click(".iq0m558w");
+    // Wait for QR code to appear
+    await page.waitForSelector(".W3myC");
 
-        // Type recipient's name
-        await page.waitForSelector("._2vDPL");
-        await page.type("._2vDPL", recipient);
-        // await page.waitForTimeout(3000); // Add a delay for the search results to appear
+    await page.screenshot({ path: "./screenshot.png" });
 
-        //   // Click on the chat
-        //   await page.waitForSelector("._8nE1Y");
-        //   await page.click("._8nE1Y");
+    const filePath = path.join(__dirname, "screenshot.png");
 
-        await page.keyboard.press("Enter");
+    // Check if the file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(404).send("File not found");
+      }
 
-        await page.waitForSelector("._3Uu1_");
-        await page.type("._3Uu1_", "HEllO Guys");
-
-        await page.keyboard.press("Enter");
-      }, 5000);
-
-      // Type and send message
-      //   await page.waitForSelector('div[data-tab="1"]');
-      //   await page.type('div[data-tab="1"]', message);
-      //   await page.keyboard.press("Enter");
-
-      console.log(`Message sent to ${recipient}: ${message}`);
-
-      page.close();
-      const newp = await browser.newPage();
-      await newp.goto("https://web.whatsapp.com");
-    } catch (error) {
-      console.error(`Error sending message to ${recipient}:`, error);
-    }
+      // Stream the file to the response
+      const stream = fs.createReadStream(filePath);
+      stream.pipe(res);
+    });
+  } catch (error) {
+    console.log(error, "some error occurred");
+    res.status(500).send("Internal Server Error");
   }
+});
+app.get("/close", async (req, res) => {await browser.close(0)})
 
-  // Example usage: sending a message
-  const recipient = "You";
-  const message = "Hello from Puppeteer!";
-  await sendMessage(recipient, message);
+app.get("/sms", async (req, res) => {
 
-  // Close the browser when done
-  // await browser.close();
-}
+let {msg , to} = req.query;
+console.log(to,msg);
+  try {
+    // const page = await browser.newPage();
+    // await page.goto("https://web.whatsapp.com");
 
+    setInterval(async () => {
+      await page.click(".iq0m558w");
 
-var browser = puppeteer.launch({ headless: false }); // Launch browser in non-headless mode for easier debugging
-// Run the function to send a message
-sendWhatsAppMessage();
-// sendWhatsAppMessage();
+      // Type recipient's name
+      await page.waitForSelector("._2vDPL");
+      await page.type("._2vDPL", to);
+      // await page.waitForTimeout(3000); // Add a delay for the search results to appear
+
+      //   // Click on the chat
+      //   await page.waitForSelector("._8nE1Y");
+      //   await page.click("._8nE1Y");
+
+      await page.keyboard.press("Enter");
+
+      await page.waitForSelector("._3Uu1_");
+      await page.type("._3Uu1_", msg);
+
+      await page.keyboard.press("Enter");
+    }, 5000);
+
+    res.send("Done");
+
+    // Handle /hello route logic here
+  } catch (error) {
+    console.log(error, "some error occurred");
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.listen(1000, () => {
+  console.log("Server is running on port 1000");
+});
