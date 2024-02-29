@@ -97,6 +97,6 @@ app.get("/sms", async (req, res) => {
   }
 });
 
-app.listen(1000, () => {
+app.listen(1000 || process.env.PORT, () => {
   console.log("Server is running on port 1000");
 });
