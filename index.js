@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
 
@@ -10,7 +11,21 @@ let browser;
 let page;
 
 (async () => {
-  browser = await puppeteer.launch({ headless: false });
+  browser = await puppeteer.launch({
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+
+    headless: false,
+  });
   page = await browser.newPage();
 })();
 
@@ -42,12 +57,13 @@ app.get("/qr-code", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-app.get("/close", async (req, res) => {await browser.close(0)})
+app.get("/close", async (req, res) => {
+  await browser.close(0);
+});
 
 app.get("/sms", async (req, res) => {
-
-let {msg , to} = req.query;
-console.log(to,msg);
+  let { msg, to } = req.query;
+  console.log(to, msg);
   try {
     // const page = await browser.newPage();
     // await page.goto("https://web.whatsapp.com");
