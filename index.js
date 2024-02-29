@@ -35,7 +35,7 @@ app.get("/qr-code", async (req, res) => {
 
     // Wait for QR code to appear
     // await page.waitForSelector(".W3myC");
-    await new Promise((resolve) => setTimeout(resolve,60* 1000));
+    await new Promise((resolve) => setTimeout(resolve,process.env.samay));
 
 
     await page.screenshot({ path: "./screenshot.png" });
